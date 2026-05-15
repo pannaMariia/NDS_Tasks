@@ -2,8 +2,6 @@
 
 class Calculator:
 
-    OPERATIONS = {'+', '-', '*', '/'}
-
     @staticmethod
     def calculate(op1, op2, operation):
 
