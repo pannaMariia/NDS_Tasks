@@ -35,7 +35,6 @@ $ ./lab4.py cat  "<" lab1.py "|" grep isinstance
 
 Вывод:
 [
-	{
 		"name": "cat",
 		"code": 0
 	},
