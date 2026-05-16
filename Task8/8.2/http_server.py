@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import socket
-import sys
-from typing import Callable, Optional
 
 from http_request import HTTPRequest
 from http_response import HTTPResponse
@@ -12,12 +10,11 @@ class HTTPServer:
     def __init__(self, host: str = '0.0.0.0', port: int = 10000):
         self.host = host
         self.port = port
-        self._server_socket: Optional[socket.socket] = None
+        self._server_socket = None
         self._running = False
-        self._handler: Optional[Callable[[HTTPRequest], HTTPResponse]] = None
+        self._handler = None
 
     def set_handler(self, handler):
-
         self._handler = handler
 
     def start(self):
@@ -36,7 +33,7 @@ class HTTPServer:
                     break
 
         except KeyboardInterrupt:
-            print(f"Сервер остановлен пользователем")
+            print(f"cервер остановлен пользователем")
         except Exception as err:
             print(err)
         finally:
@@ -48,40 +45,30 @@ class HTTPServer:
         self._server_socket.bind((self.host, self.port))
         self._server_socket.listen(5)
 
-    def _handle_client(self, client_socket: socket.socket):
-
+    def _handle_client(self, client_socket):
         try:
-            request_data = self._receive_request(client_socket)
-            if not request_data:
+            data = self._get_request(client_socket)
+            if not data:
                 return
 
-            print(f"Запрос: {request_data[:200]}...")
+            print(f"Запрос: {data[:200]}...")
 
-            # Парсим запрос
-            request = HTTPRequest(request_data)
-
-            # Обрабатываем запрос через установленный handler
+            request = HTTPRequest(data)
             if self._handler:
                 response = self._handler(request)
             else:
                 response = HTTPResponse.internal_error()
 
-            # Отправляем ответ
-            client_socket.send(response.to_bytes())
-            print(f"Ответ отправлен: {response.status_code}")
-
+            client_socket.send(response.to_bytes_str())
         except ConnectionResetError:
-            print(f"Клиент разорвал соединение")
-        except Exception as e:
-            print(f"Ошибка обработки запроса: {e}", file=sys.stderr)
-            try:
-                client_socket.send(HTTPResponse.internal_error().to_bytes())
-            except:
-                pass
+            print(f"разрыв соединения")
+        except Exception as err:
+            client_socket.send(HTTPResponse.internal_error().to_bytes_str())
+            print(err)
         finally:
             client_socket.close()
 
-    def _receive_request(self, client_socket: socket.socket, buffer_size: int = 8192) -> str:
+    def _get_request(self, client_socket, buffer_size: int = 8192):
 
         client_socket.settimeout(5.0)
 
@@ -92,8 +79,6 @@ class HTTPServer:
                 if not data:
                     break
                 data_parts.append(data.decode('utf-8'))
-
-                # Проверяем, получили ли мы полный запрос
                 if '\r\n\r\n' in data_parts[-1]:
                     break
             except socket.timeout:
@@ -105,6 +90,3 @@ class HTTPServer:
         self._running = False
         if self._server_socket:
             self._server_socket.close()
-
-    def stop(self):
-        self._stop()

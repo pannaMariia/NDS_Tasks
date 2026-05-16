@@ -12,8 +12,6 @@ def main():
     server.set_handler(handler.handle)
     server.start()
 
-    return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-from http_request import HTTPRequest
 from http_response import HTTPResponse
 from calculator import Calculator
 
@@ -47,8 +46,8 @@ class CalculatorHandler:
 
         elif method == 'PUT':
             try:
-                value = request.get_body().strip()
-                self._op1 = float(value)
+                op1 = request.get_body().strip()
+                self._op1 = float(op1)
                 return HTTPResponse.ok()
             except ValueError:
                 return HTTPResponse.bad_request("неверное значение")
@@ -61,8 +60,8 @@ class CalculatorHandler:
 
         elif method == 'PUT':
             try:
-                value = request.get_body().strip()
-                self._op2 = float(value)
+                op2 = request.get_body().strip()
+                self._op2 = float(op2)
                 return HTTPResponse.ok()
             except ValueError:
                 return HTTPResponse.bad_request("неверное значение")
@@ -70,7 +69,6 @@ class CalculatorHandler:
         return HTTPResponse.method_not_allowed()
 
     def _handle_calculate(self, request):
-        # Получаем операцию из заголовка (по умолчанию '+')
         operation = request.get_header('Operation', '+')
 
         if operation not in self.OPERATIONS:
@@ -78,10 +76,9 @@ class CalculatorHandler:
 
         try:
             result = Calculator.calculate(self._op1, self._op2, operation)
-            result_str = Calculator.format_result(result)
-            return HTTPResponse.ok(body=result_str)
+            return HTTPResponse.ok(body=Calculator.format_result(result))
 
         except ZeroDivisionError:
             return HTTPResponse.bad_request("деление на ноль")
-        except Exception as e:
-            return HTTPResponse.bad_request(str(e))
+        except Exception as err:
+            return HTTPResponse.bad_request(str(err))

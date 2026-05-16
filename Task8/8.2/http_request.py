@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import Dict, Tuple
+from typing import Dict
 
 
 class HTTPRequest:
@@ -12,38 +12,33 @@ class HTTPRequest:
         self.body = ""
         self._parse(raw_data)
 
-    def _parse(self, raw_data: str):
-        lines = raw_data.split('\r\n')
+    def _parse(self, request):
+        request_parts = request.split('\r\n')
 
-        if not lines:
+        if not request_parts:
             return
 
-        # Парсим первую строку (Request-Line)
-        first_line = lines[0].split(' ')
-        if len(first_line) >= 2:
-            self.method = first_line[0].upper()
-            self.path = first_line[1]
+        first_part = request_parts[0].split(' ')
+        if len(first_part) >= 2:
+            self.method = first_part[0].upper()
+            self.path = first_part[1]
 
-        # Парсим заголовки и тело
         headers_parsed = False
-        body_lines = []
+        body = []
 
-        for i, line in enumerate(lines[1:], 1):
-            # Пустая строка означает конец заголовков
-            if line == "" and not headers_parsed:
+        for i, part in enumerate(request_parts[1:], 1):
+            if part == "" and not headers_parsed:
                 headers_parsed = True
                 continue
 
             if not headers_parsed:
-                # Парсим заголовок
-                if ': ' in line:
-                    key, value = line.split(': ', 1)
+                if ': ' in part:
+                    key, value = part.split(': ', 1)
                     self.headers[key] = value
             else:
-                # Собираем тело запроса
-                body_lines.append(line)
+                body.append(part)
 
-        self.body = '\r\n'.join(body_lines)
+        self.body = '\r\n'.join(body)
 
     def get_header(self, name, default):
         return self.headers.get(name, default)
@@ -56,6 +51,3 @@ class HTTPRequest:
 
     def get_method(self):
         return self.method
-
-    def __repr__(self):
-        return f"HTTPRequest(method={self.method}, path={self.path})"
