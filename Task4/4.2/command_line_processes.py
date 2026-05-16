@@ -70,7 +70,9 @@ class CommandLineProcesses:
                         result["signal"] = "Terminated"
                     else:
                         result["signal"] = f"Signal {signal_num}"
-                    result["output"] = ""
+
+                    if "output" not in result:
+                        result["output"] = ""
 
                 results.append(result)
 

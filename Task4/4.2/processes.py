@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import signal
+
+
 class Processes:
     def __init__(self):
         self._processes = []
@@ -13,5 +16,5 @@ class Processes:
     def finish_all(self):
         for process in self._processes:
             if process.poll() is None:
-                process.terminate()
+                process.send_signal(signal.SIGUSR1)
 

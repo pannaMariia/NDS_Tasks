@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-lab4_2.py - Запуск конвейера из нескольких дочерних процессов.
-Поддерживает перенаправление ввода из файла и перехват сигнала SIGUSR1.
-"""
+
 
 import subprocess
 import sys
@@ -33,7 +30,7 @@ def main():
         return 0
 
     except ValueError as err:
-        print(f"{sys.argv[0]} : <команда> [аргументы] ['<'] <файл>")
+        print(f"<команда> [аргументы] ['<'] <файл>")
         return 1
 
     except FileNotFoundError as err:
